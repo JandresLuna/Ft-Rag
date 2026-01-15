@@ -1,0 +1,5 @@
+{
+  "name": "Fine-Tuning vs RAG",
+  "description": "An interactive educational platform exploring the strategic differences between Fine-Tuning and Retrieval Augmented Generation (RAG) through guided narratives and minigames.",
+  "requestFramePermissions": []
+}
