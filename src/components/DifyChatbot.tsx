@@ -65,21 +65,28 @@ export const DifyChatbot: React.FC<DifyChatbotProps> = ({ isVisible = true }) =>
     // 4. Polling agresivo: Dify a veces recrea el botón o lo oculta al inicio
     const interval = setInterval(() => {
       const button = document.getElementById('dify-chatbot-bubble-button');
+      const windowFrame = document.getElementById('dify-chatbot-bubble-window');
+
       if (button) {
         if (isVisible) {
-          if (button.style.display === 'none') {
-            button.style.setProperty('display', 'flex', 'important');
-            button.style.setProperty('visibility', 'visible', 'important');
-            button.style.setProperty('opacity', '1', 'important');
+          button.style.setProperty('display', 'flex', 'important');
+          button.style.setProperty('visibility', 'visible', 'important');
+          button.style.setProperty('opacity', '1', 'important');
+          if (window.getComputedStyle(button).display === 'none') {
+            console.log('Force showing Dify button');
           }
         } else {
           button.style.setProperty('display', 'none', 'important');
         }
+      }
+
+      if (windowFrame && !isVisible) {
+        windowFrame.style.setProperty('display', 'none', 'important');
       }
     }, 1000);
 
     return () => clearInterval(interval);
   }, [isVisible]);
 
-  return null;
+  return <div id="dify-chatbot-placeholder" style={{ display: 'none' }} />;
 };

@@ -12,8 +12,19 @@ import { DifyChatbot } from './components/DifyChatbot';
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>(() => {
-    const saved = localStorage.getItem('strata_progress');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem('strata_progress');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          role: parsed.role || null,
+          currentModuleIndex: parsed.currentModuleIndex || 0,
+          scores: parsed.scores || {},
+        };
+      }
+    } catch (e) {
+      console.error('Error loading progress:', e);
+    }
     return {
       role: null,
       currentModuleIndex: 0,
@@ -60,6 +71,8 @@ const App: React.FC = () => {
   };
 
   const renderModule = () => {
+    if (!currentModule) return <div>Error: Módulo no encontrado.</div>;
+
     switch (currentModule.id) {
       case ModuleId.HERO:
         return <Hero onStart={handleNext} />;
