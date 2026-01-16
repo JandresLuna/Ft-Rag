@@ -1,92 +1,72 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface DifyChatbotProps {
   isVisible?: boolean;
 }
 
 export const DifyChatbot: React.FC<DifyChatbotProps> = ({ isVisible = true }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   useEffect(() => {
-    console.log('DifyChatbot Component Rendered. Visible:', isVisible);
+    if (!isVisible) return;
 
-    // 1. Configuración global
-    (window as any).difyChatbotConfig = {
-      token: 'wuMrJAL47HxJNpsO',
-      inputs: {},
-      systemVariables: {},
-      userVariables: {},
-    };
-
-    // 2. Inyectar Script si no existe
-    const scriptId = 'wuMrJAL47HxJNpsO';
+    // 1. Inyectar Script para el Botón (solo si quieres mantener el de Dify por debajo, pero aquí haremos el propio)
+    const scriptId = 'dify-chatbot-script';
     let script = document.getElementById(scriptId) as HTMLScriptElement;
     if (!script) {
       script = document.createElement('script');
       script.src = 'https://udify.app/embed.min.js';
       script.id = scriptId;
       script.defer = true;
-      script.onload = () => console.log('Dify Script Loaded OK');
-      script.onerror = () => console.error('Dify Script Load FAILED (404?)');
       document.body.appendChild(script);
     }
-
-    // 3. Inyectar estilos (Override total)
-    const styleId = 'dify-force-visible';
-    let style = document.getElementById(styleId) as HTMLStyleElement;
-    if (!style) {
-      style = document.createElement('style');
-      style.id = styleId;
-      document.head.appendChild(style);
-    }
-
-    // Aplicar estilos según visibilidad
-    style.textContent = `
-      #dify-chatbot-bubble-button {
-        display: ${isVisible ? 'flex' : 'none'} !important;
-        visibility: ${isVisible ? 'visible' : 'hidden'} !important;
-        opacity: ${isVisible ? '1' : '0'} !important;
-        background-color: #1C64F2 !important;
-        position: fixed !important;
-        bottom: 24px !important;
-        right: 24px !important;
-        z-index: 999999 !important;
-        width: 60px !important;
-        height: 60px !important;
-        border-radius: 50% !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
-      }
-      #dify-chatbot-bubble-window {
-        display: ${isVisible ? 'block' : 'none'} !important;
-        z-index: 999999 !important;
-        width: 24rem !important;
-        height: 40rem !important;
-      }
-    `;
-
-    // 4. Polling agresivo: Dify a veces recrea el botón o lo oculta al inicio
-    const interval = setInterval(() => {
-      const button = document.getElementById('dify-chatbot-bubble-button');
-      const windowFrame = document.getElementById('dify-chatbot-bubble-window');
-
-      if (button) {
-        if (isVisible) {
-          button.style.setProperty('display', 'flex', 'important');
-          button.style.setProperty('visibility', 'visible', 'important');
-          button.style.setProperty('opacity', '1', 'important');
-          if (window.getComputedStyle(button).display === 'none') {
-            console.log('Force showing Dify button');
-          }
-        } else {
-          button.style.setProperty('display', 'none', 'important');
-        }
-      }
-
-      if (windowFrame && !isVisible) {
-        windowFrame.style.setProperty('display', 'none', 'important');
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
   }, [isVisible]);
 
-  return <div id="dify-chatbot-placeholder" style={{ display: 'none' }} />;
+  if (!isVisible) return null;
+
+  return (
+    <>
+      {/* Botón Flotante Personalizado */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-8 right-8 z-[1000] w-16 h-16 bg-[#38bdf8] text-black rounded-full shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:scale-110 transition-all flex items-center justify-center group animate-bounce"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:rotate-12 transition-transform">
+            <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" />
+          </svg>
+        </button>
+      )}
+
+      {/* Ventana de Chat */}
+      {isOpen && (
+        <div className="fixed bottom-8 right-8 z-[1001] w-[90vw] md:w-[450px] max-h-[85vh] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/80 backdrop-blur-xl animate-in zoom-in-95 fade-in duration-300 origin-bottom-right">
+          {/* Header con Botón X */}
+          <div className="bg-white/5 p-4 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#38bdf8]">TERMINAL_ACTIVA</span>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1 hover:bg-white/10 rounded-md transition-colors text-white/50 hover:text-white"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Cuerpo del Iframe */}
+          <div className="w-full h-[600px] bg-white">
+            <iframe
+              src="https://udify.app/chatbot/wuMrJAL47HxJNpsO"
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              allow="microphone"
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
 };

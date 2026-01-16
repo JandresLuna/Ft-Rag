@@ -138,18 +138,22 @@ const App: React.FC = () => {
         return <Comparison onNext={handleNext} />;
       case ModuleId.TAKEAWAYS:
         return (
-          <>
-            <div className="flex flex-col items-center justify-center min-h-[80vh] text-center max-w-2xl mx-auto">
-              <h2 className="text-5xl font-extrabold mb-8 text-[#fbbf24] tracking-tighter">MISIÓN CUMPLIDA</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-12">
-                {Object.values(state.scores).map((s: GameScore) => (
-                  <div key={s.gameId} className="p-6 border border-[#38bdf8]/30 rounded bg-[#38bdf8]/5 flex flex-col items-center">
-                    <p className="text-[10px] uppercase font-mono text-[#38bdf8] mb-2">{s.gameId}</p>
-                    <p className="text-3xl font-black">{Math.round((s.score / s.total) * 100)}%</p>
-                    <p className="text-xs opacity-50">{s.score} de {s.total} aciertos</p>
-                  </div>
-                ))}
-              </div>
+          <div className="flex flex-col items-center justify-center min-h-[80vh] text-center max-w-4xl mx-auto">
+            <h2 className="text-5xl font-extrabold mb-8 text-[#fbbf24] tracking-tighter">MISIÓN CUMPLIDA</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-12 max-w-2xl">
+              {Object.values(state.scores).map((s: GameScore) => (
+                <div key={s.gameId} className="p-6 border border-[#38bdf8]/30 rounded bg-[#38bdf8]/5 flex flex-col items-center">
+                  <p className="text-[10px] uppercase font-mono text-[#38bdf8] mb-2">{s.gameId}</p>
+                  <p className="text-3xl font-black">{Math.round((s.score / s.total) * 100)}%</p>
+                  <p className="text-xs opacity-50">{s.score} de {s.total} aciertos</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Chatbot Integrado (Iframe) */}
+            <DifyChatbot isVisible={true} />
+
+            <div className="mt-12">
               <button
                 onClick={() => {
                   localStorage.removeItem('strata_progress');
@@ -160,7 +164,7 @@ const App: React.FC = () => {
                 Reiniciar Academia
               </button>
             </div>
-          </>
+          </div>
         );
       default:
         return <div>Error de carga de módulo.</div>;
@@ -201,7 +205,6 @@ const App: React.FC = () => {
       <main className="pt-24 pb-32 px-6 max-w-6xl mx-auto min-h-screen">
         {renderModule()}
       </main>
-      <DifyChatbot isVisible={state.currentModuleIndex === MODULE_SEQUENCE.length - 1} />
     </div>
   );
 };
